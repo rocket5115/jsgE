@@ -67,17 +67,6 @@ class RegisterScene {
     get GetRenderer() {
         return this.render;
     };
-    CreateGround(width, height, x, y, centerx, centery, metadata) {
-        let obj = this.render.CreateObject("ground", width, height, x, y, centerx, centery);
-        this.render.GetPhysics.RegisterPhysicsObject(obj.obj,
-            {x1:obj.x,y1:obj.y,x2:obj.x+obj.width,y2:obj.y}, 
-            {x1:obj.x+obj.width,y1:obj.y,x2:obj.x+obj.width,y2:obj.y+obj.height},
-            {x1:obj.x,y1:obj.y+obj.height,x2:obj.x+obj.width,y2:obj.y+obj.height},
-            {x1:obj.x,y1:obj.y,x2:obj.x,y2:obj.y+obj.height}, 
-            (metadata||{dynamic:false})
-        )
-        return obj;
-    };
     CreateObject(width, height, x, y, centerx, centery, metadata) {
         let obj = this.render.CreateObject("obj", width, height, x, y, centerx, centery);
         this.render.GetPhysics.RegisterPhysicsObject(obj.obj,

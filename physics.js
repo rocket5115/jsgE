@@ -33,8 +33,9 @@ class ObjectMetadata {
         this.objects = [];
     };
     DisablePhysics(id) {
-        id=typeof(id)==='string'?'string':'number';
-        console.log(id);
+        id=typeof(id)==='object'?true:false;
+        if(!id)return;
+        console.log(id)
     };
 };
 
