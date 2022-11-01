@@ -29,7 +29,7 @@ class Renderer {
             if(y<0) y=0;
             if(x<0) x=0;
             let objid = (Math.random()*20).toFixed(10)
-            $('#SceneElement'+this.id).append(`<${type} id="SceneElementObject${objid}" style="background-color:red;position:relative;width:${width}px;height:${height}px;left:${x}px;top:${y}px"></${type}>`);
+            $('#SceneElement'+this.id).append(`<${type} id="SceneElementObject${objid}" style="background-color:red;position:absolute;width:${width}px;height:${height}px;left:${x}px;top:${y}px"></${type}>`);
             return {width: width, height: height, x:x, y:y, id:"SceneElementObject"+objid}
         };
     };
@@ -90,16 +90,6 @@ class RegisterScene {
         return obj;
     }
 }
-
-var map = new RegisterScene(1920, 1080, false);
-map.CreateGround(1920, 40, 0, 1080, false, true);
-let obj = map.CreateObject(200, 40, 50, 900, false, false, {dynamic:true});
-let obj2 = map.CreateObject(90, 40, 250, 900, false, false, {dynamic:true});
-window.addEventListener('keyup', e => {
-    if(e.code=='Space'){
-        PhysicsObjects[map.GetRenderer.GetId].gravity = -10;
-    };
-});
 setInterval(() => {
     if(PhysicsObjects[map.GetRenderer.GetId].gravity<9) {
         PhysicsObjects[map.GetRenderer.GetId].gravity++  
