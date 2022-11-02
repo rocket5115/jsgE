@@ -35,7 +35,7 @@ class ObjectMetadata {
     DisablePhysics(id) {
         id=typeof(id)==='object'?true:false;
         if(!id)return;
-        console.log(id)
+        //console.log(id)
     };
 };
 
@@ -86,26 +86,55 @@ class Physics {
             let tomove=false;
             for(let i=0;i<statics.length;i++){
                 let distances = PhysicsCheckDirection(obj.walls,statics[i].walls);
-                if(distances.top&&distances.between){
-                    let difference=(distances.topdifference-PhysicsObjects[id].gravity>=0);
-                    if(difference){
-                        if(!tomove){
-                            tomove={obj:obj.obj,topdifference:distances.topdifference,i:obj.i,walls:obj.walls.length};
+                if(PhysicsObjects[id].gravity>-1) {
+                    if(distances.top&&distances.between){
+                        let difference=(distances.topdifference-PhysicsObjects[id].gravity>=0);
+                        if(difference){
+                            if(!tomove){
+                                tomove={obj:obj.obj,topdifference:distances.topdifference,i:obj.i,walls:obj.walls.length};
+                            };
+                            if(tomove.topdifference>distances.topdifference){
+                                tomove.topdifference=distances.topdifference;
+                            };
+                        } else {
+                            if(!tomove){
+                                tomove={obj:obj.obj,topdifference:distances.topdifference,i:obj.i,walls:obj.walls.length};
+                            };
+                            if(tomove.topdifference>distances.topdifference){
+                                tomove.topdifference=distances.topdifference;
+                            };
                         };
-                        if(tomove.topdifference>distances.topdifference){
-                            tomove.topdifference=distances.topdifference;
-                        };
-                    } else {
-                        if(!tomove){
-                            tomove={obj:obj.obj,topdifference:distances.topdifference,i:obj.i,walls:obj.walls.length};
-                        };
-                        if(tomove.topdifference>distances.topdifference){
-                            tomove.topdifference=distances.topdifference;
+                    };
+                } else {
+                    if(distances.down&&distances.between){
+                        let difference=(distances.downdifference-PhysicsObjects[id].gravity>=0);
+                        if(difference){
+                            if(!tomove){
+                                tomove={obj:obj.obj,topdifference:distances.downdifference,i:obj.i,walls:obj.walls.length};
+                            };
+                            if(tomove.topdifference>distances.downdifference){
+                                tomove.topdifference=distances.downdifference;
+                            };
+                        } else {
+                            if(!tomove){
+                                tomove={obj:obj.obj,topdifference:distances.downdifference,i:obj.i,walls:obj.walls.length};
+                            };
+                            if(tomove.topdifference>distances.downdifference){
+                                tomove.topdifference=distances.downdifference;
+                            };
                         };
                     };
                 };
             };
-            if(tomove.topdifference>PhysicsObjects[id].gravity){
+            if(tomove.topdifference<0){
+            };
+            if(PhysicsObjects[id].gravity<0&&tomove){
+                if(tomove.topdifference+PhysicsObjects[id].gravity>0){
+                    tomove.topdifference=PhysicsObjects[id].gravity;
+                } else {
+                    tomove.topdifference = -1;
+                };
+            } else if(tomove.topdifference>PhysicsObjects[id].gravity){
                 tomove.topdifference=PhysicsObjects[id].gravity;
             };
             if(tomove){

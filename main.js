@@ -11,7 +11,7 @@ class Renderer {
         this.physics = new RegisterPhysicsObject(id);
         RenderObjects[id]=[];
         this.CenterElement = (num, ext) => {
-            return (num-(ext/2))
+            return (num-(ext/2));
         };
         this.CreateHTMLElement = (type, width, height, x, y, centerx, centery) => {
             if(centerx) x=x+this.CenterElement(x,width);
@@ -77,8 +77,32 @@ class RegisterScene {
             (metadata||{dynamic:false})
         )
         return obj;
-    }
-}
+    };
+    CreateBorders(p1,p2,p3,p4) {
+        let objs = [1,1,1,1]
+        if(typeof(p1)==='number'){
+            p1=p1>0?p1:1;
+            objs[0]=p1;objs[1]=p1;objs[2]=p1;objs[3]=p1;
+        };
+        if(typeof(p2)==='number'){
+            p2=p2>0?p2:1;
+            objs[1]=p2;objs[3]=p2;
+        };
+        if(typeof(p3)==='number'){
+            p3=p3>0?p3:1;
+            objs[2]=p3;
+        };
+        if(typeof(p4)==='number'){
+            p4=p4>0?p4:1;
+            objs[3]=p4;
+        };
+        p1 = this.CreateObject(this.x,objs[0],0,0,false,false);
+        p2 = this.CreateObject(objs[1],this.y-objs[1],this.x,0,false,false);
+        p3 = this.CreateObject(this.x,objs[2],0,this.y,false,false);
+        p4 = this.CreateObject(objs[3],this.y,0,0,false,false);
+        return {p1,p2,p3,p4};
+    };
+};
 setInterval(() => {
     if(PhysicsObjects[map.GetRenderer.GetId].gravity<9) {
         PhysicsObjects[map.GetRenderer.GetId].gravity++  
