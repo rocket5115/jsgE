@@ -126,8 +126,6 @@ class Physics {
                     };
                 };
             };
-            if(tomove.topdifference<0){
-            };
             if(PhysicsObjects[id].gravity<0&&tomove){
                 if(tomove.topdifference+PhysicsObjects[id].gravity>0){
                     tomove.topdifference=PhysicsObjects[id].gravity;
