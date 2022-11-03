@@ -8,7 +8,7 @@ class Renderer {
         this.container = document.getElementById('SceneElement'+id);
         this.parentX = Number(this.container.style.width.replace('px', ''));
         this.parentY = Number(this.container.style.height.replace('px', ''));
-        this.physics = new RegisterPhysicsObject(id);
+        this.lphysics = new RegisterPhysicsObject(id);
         RenderObjects[id]=[];
         this.CenterElement = (num, ext) => {
             return (num-(ext/2));
@@ -41,8 +41,11 @@ class Renderer {
     GetObject(id) {
         return RenderObjects[this.id][id];
     };
-    get GetPhysics() {
-        return this.physics
+    get physics() {
+        return this.lphysics
+    };
+    get metadata() {
+        return this.lphysics.metadata;
     };
     get GetId() {
         return this.id
@@ -64,12 +67,18 @@ class RegisterScene {
     get GetOverlap() {
         return (this.overlap===true);
     };
-    get GetRenderer() {
+    get metadata() {
+        return this.render.physics.metadata;
+    };
+    get physics() {
+        return this.render.physics;
+    };
+    get renderer() {
         return this.render;
     };
     CreateObject(width, height, x, y, centerx, centery, metadata) {
         let obj = this.render.CreateObject("obj", width, height, x, y, centerx, centery);
-        this.render.GetPhysics.RegisterPhysicsObject(obj.obj,
+        this.render.physics.RegisterPhysicsObject(obj.obj,
             {x1:obj.x,y1:obj.y,x2:obj.x+obj.width,y2:obj.y}, 
             {x1:obj.x+obj.width,y1:obj.y,x2:obj.x+obj.width,y2:obj.y+obj.height},
             {x1:obj.x,y1:obj.y+obj.height,x2:obj.x+obj.width,y2:obj.y+obj.height},
@@ -104,7 +113,7 @@ class RegisterScene {
     };
 };
 setInterval(() => {
-    if(PhysicsObjects[map.GetRenderer.GetId].gravity<9) {
-        PhysicsObjects[map.GetRenderer.GetId].gravity++  
+    if(PhysicsObjects[map.renderer.GetId].gravity<9) {
+        PhysicsObjects[map.renderer.GetId].gravity++  
     };
 }, 20);
