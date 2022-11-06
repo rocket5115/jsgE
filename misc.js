@@ -108,4 +108,85 @@ class Misc {
         });
         return success;
     };
+    SetPhysicsObjectValueByWalls(walls,key,value) {
+        let success = false;
+        (this.id!=""&&PhysicsObjects[this.id]||PhysicsObjects).forEach(obj => {
+            if(this.id==""){
+                for(let i=0;i<obj.length;i++){
+                    if(obj[i].walls==walls){
+                        if(obj[i][key]!=undefined){
+                            obj[i][key]=value;
+                            success = true;
+                            return;
+                        };
+                        return;
+                    };
+                };
+            } else {
+                if(obj.walls==walls){
+                    if(obj[key]!=undefined){
+                        obj[key]=value;
+                        success = true;
+                        return;
+                    };
+                    return;
+                };
+            };
+        });
+        return success;
+    };
+    PushPhysicsObjectById(id,key,value) {
+        let success = false;
+        (this.id!=""&&PhysicsObjects[this.id]||PhysicsObjects).forEach(obj => {
+            if(this.id==""){
+                for(let i=0;i<obj.length;i++){
+                    if(obj[i].id==id||obj[i].obj==id){
+                        if(obj[i][key]!=undefined){
+                            let retval = typeof(obj[i][key])=='object'?obj[i][key].push(value):false;
+                            success = retval!=false;
+                            return;
+                        };
+                        return;
+                    };
+                };
+            } else {
+                if(obj.id==id||obj.obj==id){
+                    if(obj[key]!=undefined){
+                        let retval = typeof(obj[key])=='object'?obj[key].push(value):false;
+                        success = retval!=false;
+                        return;
+                    };
+                    return;
+                };
+            };
+        });
+        return success;
+    };
+    PushPhysicsObjectByWalls(walls,key,value) {
+        let success = false;
+        (this.id!=""&&PhysicsObjects[this.id]||PhysicsObjects).forEach(obj => {
+            if(this.id==""){
+                for(let i=0;i<obj.length;i++){
+                    if(obj[i].walls==walls){
+                        if(obj[i][key]!=undefined){
+                            let retval = typeof(obj[i][key])=='object'?obj[i][key].push(value):false;
+                            success = retval!=false;
+                            return;
+                        };
+                        return;
+                    };
+                };
+            } else {
+                if(obj.walls==walls){
+                    if(obj[key]!=undefined){
+                        let retval = typeof(obj[key])=='object'?obj[key].push(value):false;
+                        success = retval!=false;
+                        return;
+                    };
+                    return;
+                };
+            };
+        });
+        return success;
+    };
 };

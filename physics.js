@@ -1,6 +1,7 @@
 const PhysicsObjects = [];
 const DynamicObjects =[];
 const StaticObjects =[];
+const FocusOn = [];
 
 class RegisterPhysicsObject {
     constructor(id) {
@@ -13,7 +14,7 @@ class RegisterPhysicsObject {
         this.objects = [];
     };
     RegisterPhysicsObject(obj,north,east,south,west,metadata) {
-        PhysicsObjects[this.id].push({obj:obj,walls:[north,south,west,east],static:!metadata.dynamic,id:this.id,disabled:false})
+        PhysicsObjects[this.id].push({obj:obj,walls:[north,south,west,east],static:!metadata.dynamic,id:this.id,disabled:false,collisions:[],collided:[]});
         this.objects[obj]=PhysicsObjects[this.id].length-1;
         if(metadata.dynamic){
             DynamicObjects[this.id].push(PhysicsObjects[this.id].length-1)
@@ -65,7 +66,29 @@ class ObjectMetadata {
         this.objects[obj.obj]=obj;
         return true;
     };
+    FocusOnElement(obj) {
+        if(typeof(obj)==='string'){
+            if(!document.getElementById(obj))return;
+        };
+        if(obj.style===undefined){
+            FocusOn[0]=this.misc.GetDOMElementFromId(obj.id||obj.obj);
+            return true;
+        };
+        FocusOn[0]=obj;
+        return true;
+    };
+    ClearFocus() {
+        FocusOn[0]=undefined;
+        return true;
+    }
 };
+
+setInterval(()=>{
+    if(FocusOn[0]!=undefined){
+        let elementRect=FocusOn[0].getBoundingClientRect();
+        window.scrollTo((elementRect.left + window.pageXOffset) - (1920/4), (elementRect.top + window.pageYOffset) - (1080 / 2));
+    };
+}, 15);
 
 // walls [north - 0, south - 1, west - 2, east - 3] // góra, dół, lewo, prawo
 
@@ -96,6 +119,8 @@ class Physics {
     constructor(id) {
         this.id = id;
         this.interval = 1.0;
+        this.dynamicobjects = [];
+        this.staticobjects = [];
     };
     get GetInterval() {
         return this.interval;
@@ -118,6 +143,18 @@ class Physics {
             let tomove=false;
             for(let i=0;i<statics.length;i++){
                 let distances = PhysicsCheckDirection(obj.walls,statics[i].walls);
+                if((obj.collisions.length>0&&(distances.downdifference<=0&&distances.down)||(distances.topdifference<=0&&distances.top))&&(!distances.left&&!distances.right)){
+                    this.OnDynamicCollisions(obj,statics[i]);
+                } else if(obj.collisions.length>0){
+                    this.OnDynamicCollisions(null,statics[i]);
+                };
+                if(statics[i].collisions.length>0&&((distances.downdifference<=0&&distances.down)||(distances.topdifference<=0&&distances.top))||distances.overflow){
+                    if(statics[i].collisions.length>0){
+                        //this.OnStaticCollisions(statics[i],obj);
+                    };
+                } else if(statics[i].collisions.length>0){
+                    //this.OnStaticCollisions(null,obj);
+                };
                 if(distances.cdisabled)continue;
                 if(PhysicsObjects[id].gravity>-1) {
                     if(distances.top&&distances.between){
@@ -192,11 +229,45 @@ class Physics {
             };
         });
     };
+    OnDynamicCollisions(parent, child) {
+        if(parent===null){
+            if(this.dynamicobjects[child.obj]){
+                this.dynamicobjects[child.obj]=undefined;
+                return;
+            };
+            return;
+        };
+        if(!this.dynamicobjects[child.obj]){
+            this.dynamicobjects[child.obj]=true;
+            for(let i=0;i<parent.collisions.length;i++){
+                parent.collisions[i](parent,child);
+            };
+            return;
+        };
+    };
+    OnStaticCollisions(parent, child) {
+        if(parent===null){
+            if(this.staticobjects[child.obj]){
+                this.staticobjects[child.obj]=undefined;
+                return;
+            };
+            return;
+        };
+        if(!this.staticobjects[child.obj]){
+            this.staticobjects[child.obj]=true;
+            for(let i=0;i<parent.collisions.length;i++){
+                console.log(parent.obj)
+                parent.collisions[i](parent,child);
+            };
+            return;
+        };
+    };
 };
 
 const PhysicsObject = new Physics('main');
 const PhysicsFunc = () => {
     PhysicsObjects.forEach((value,id)=>{
+        if(value==undefined)return;
         PhysicsObject.Next(value,id);
     });
     setTimeout(PhysicsFunc,PhysicsObject.GetInterval*10);
@@ -206,23 +277,39 @@ setTimeout(PhysicsFunc, PhysicsObject.GetInterval*10)
 class Movement {
     constructor(element) {
         this.obj = element;
+        this.method = 'dynamic';
+        this.dynamicobjects = [];
         PhysicsObjects.forEach((value,id)=>{
             for(let i=0;i<value.length;i++){
                 if(value[i].obj==element.id){
                     this.id=id;
                     this.i=i;
+                    this.static=value[i].static;
                 };
             };
         });
+        if(this.static){
+            this.method='static';
+        };
     };
     MoveLeft(dist){
+        if(!PhysicsObjects[this.id])return this.DeleteMovement();
         let statics=[];
         PhysicsObjects[this.id].forEach(obj=>{
-            if(obj.static){statics.push(obj);return;};
+            if(this.method=='dynamic'){
+                if(obj.static){statics.push(obj);return;};
+            } else {
+                statics[i].push(obj);return;
+            };
         });
         let fobj = false;
         for(let i=0;i<statics.length;i++){
             let distances = PhysicsCheckDirection(PhysicsObjects[this.id][this.i].walls,statics[i].walls);
+            if(PhysicsObjects[this.id][this.i].collisions.length>0&&distances.right&&!distances.between&&!(distances.top||distances.down)&&distances.rightdifference<=0){
+                this.OnCollisions(PhysicsObjects[this.id][this.i], statics[i]);
+            } else if(PhysicsObjects[this.id][this.i].collisions.length>0){
+                this.OnCollisions(null, statics[i]);
+            };
             if(distances.right&&!distances.between&&!(distances.top||distances.down)&&!distances.disabled){
                 let difference=(distances.rightdifference-dist>=0);
                 if(difference){
@@ -253,13 +340,23 @@ class Movement {
         };
     };
     MoveRight(dist){
+        if(!PhysicsObjects[this.id])return this.DeleteMovement();
         let statics=[];
         PhysicsObjects[this.id].forEach(obj=>{
-            if(obj.static){statics.push(obj);return;};
+            if(this.method=='dynamic'){
+                if(obj.static){statics.push(obj);return;};
+            } else {
+                statics[i].push(obj);return;
+            };
         });
         let fobj = false;
         for(let i=0;i<statics.length;i++){
             let distances = PhysicsCheckDirection(PhysicsObjects[this.id][this.i].walls,statics[i].walls);
+            if(PhysicsObjects[this.id][this.i].collisions.length>0&&distances.left&&!distances.between&&!(distances.top||distances.down)&&distances.leftdifference<=0){
+                this.OnCollisions(PhysicsObjects[this.id][this.i], statics[i]);
+            } else if(PhysicsObjects[this.id][this.i].collisions.length>0){
+                this.OnCollisions(null, statics[i]);
+            };
             if(distances.left&&!distances.between&&!(distances.top||distances.down)&&!distances.disabled){
                 let difference=(distances.leftdifference-dist>=0);
                 if(difference){
@@ -287,6 +384,33 @@ class Movement {
         for(let j=0;j<PhysicsObjects[this.id][this.i].walls.length;j++) {
             PhysicsObjects[this.id][this.i].walls[j].x1=PhysicsObjects[this.id][this.i].walls[j].x1+fobj;
             PhysicsObjects[this.id][this.i].walls[j].x2=PhysicsObjects[this.id][this.i].walls[j].x2+fobj;
+        };
+    };
+    DeleteMovement(){
+        if(!this.id)return false;
+        console.log(`Deleted Movement Object with ID ${this.id}`);
+        delete(this.obj);
+        delete(this.id);
+        delete(this.i);
+        delete(this.MoveLeft);
+        delete(this.MoveRight);
+        delete(this.DeleteMovement);
+        return true;
+    };
+    OnCollisions(parent, child) {
+        if(parent===null){
+            if(this.dynamicobjects[child.obj]){
+                this.dynamicobjects[child.obj]=undefined;
+                return;
+            };
+            return;
+        };
+        if(!this.dynamicobjects[child.obj]){
+            this.dynamicobjects[child.obj]=true;
+            for(let i=0;i<parent.collisions.length;i++){
+                parent.collisions[i](parent,child);
+            };
+            return;
         };
     };
 };

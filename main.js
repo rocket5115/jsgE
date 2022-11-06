@@ -1,7 +1,7 @@
 const RenderObjects = [];
 
 class Renderer {
-    constructor(id,x,y) {
+    constructor(id,x,y,object) {
         this.id = id;
         this.x = x;
         this.y = y;
@@ -9,6 +9,7 @@ class Renderer {
         this.parentX = Number(this.container.style.width.replace('px', ''));
         this.parentY = Number(this.container.style.height.replace('px', ''));
         this.lphysics = new RegisterPhysicsObject(id);
+        this.lenemies = new EnemiesCreator(this.id,object);
         RenderObjects[id]=[];
         this.CenterElement = (num, ext) => {
             return (num-(ext/2));
@@ -50,22 +51,42 @@ class Renderer {
     get GetId() {
         return this.id
     };
-}
+    get enemies() {
+        return this.lenemies;
+    };
+};
 
 class RegisterScene {
     constructor(x,y,n) {
         this.x = x;
         this.y = y;
-        this.overlap = n||false;
+        this.loverlap = n||false;
         this.id = Math.floor((x/y)*Math.random()*10);
         $("#ScenesContainer").append(`<container id="SceneElement${this.id}" class="Scene" style="position:absolute;width:${x}px;height:${y}px;max-width:${x}px;max-height:${y}px"></container>`);
-        this.render = new Renderer(this.id,x,y);
+        this.render = new Renderer(this.id,x,y,this);
+        this.deconstruct = new Deconstruct(this.id);
     };
-    get GetSceneSize() {
+    DeleteScene() {
+        this.deconstruct.DeleteAll();
+        console.log(`Deleted Scene with ID ${this.id}`);
+        delete(this.CreateObject);
+        delete(this.CreateBorders);
+        delete(this.DeleteScene);
+        delete(this.x);
+        delete(this.y);
+        delete(this.loverlap);
+        delete(this.id);
+        delete(this.render);
+        delete(this.deconstruct);
+    };
+    get deconstructor() {
+        return this.deconstruct;
+    };
+    get size() {
         return {x:this.x,y:this.y};
     };
-    get GetOverlap() {
-        return (this.overlap===true);
+    get overlap() {
+        return (this.loverlap===true);
     };
     get metadata() {
         return this.render.physics.metadata;
@@ -75,6 +96,9 @@ class RegisterScene {
     };
     get renderer() {
         return this.render;
+    };
+    get enemies() {
+        return this.render.enemies;
     };
     CreateObject(width, height, x, y, centerx, centery, metadata) {
         let obj = this.render.CreateObject("obj", width, height, x, y, centerx, centery);
@@ -113,7 +137,8 @@ class RegisterScene {
     };
 };
 setInterval(() => {
-    if(PhysicsObjects[map.renderer.GetId].gravity<9) {
-        PhysicsObjects[map.renderer.GetId].gravity++  
-    };
+    PhysicsObjects.forEach(value=>{
+        if(value==undefined)return;
+        if(value.gravity<9)value.gravity++;
+    });
 }, 20);
