@@ -350,6 +350,7 @@ class Movement {
             };
         });
         let fobj = false;
+        let instance = {};
         for(let i=0;i<statics.length;i++){
             let distances = PhysicsCheckDirection(PhysicsObjects[this.id][this.i].walls,statics[i].walls);
             if(PhysicsObjects[this.id][this.i].collisions.length>0&&distances.left&&!distances.between&&!(distances.top||distances.down)&&distances.leftdifference<=0){
@@ -362,22 +363,32 @@ class Movement {
                 if(difference){
                     if(!fobj){
                         fobj=distances.leftdifference;
+                        instance=distances;
                     };
                     if(fobj>distances.leftdifference){
                         fobj=distances.leftdifference;
+                        instance=distances;
                     };
                 } else {
                     if(!fobj){
-                        fobj=distances.leftdifference;
+                        fobj=distances.leftdifference-dist;
+                        instance=distances;
                     };
                     if(fobj>distances.leftdifference){
-                        fobj=distances.leftdifference;
+                        fobj=distances.leftdifference-dist;
+                        instance=distances;
                     };
                 };
             };
         };
         if(fobj>dist){
             fobj=dist;
+        };
+        if(instance.leftdifference<fobj){
+            fobj=instance.leftdifference;
+        };
+        if(fobj<0){
+            fobj=0;
         };
         let doc=this.obj;
         doc.style.left=Number(doc.style.left.replace('px',''))+fobj+'px';
