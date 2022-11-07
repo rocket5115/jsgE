@@ -28,6 +28,9 @@ class RegisterPhysicsObject {
     get metadata() {
         return this.ObjectMetadata;
     };
+    get misc() {
+        return this.metadata.misc
+    };
     GetIsStatic(id) {
         id=typeof(id)==='string'?id:id.obj||id.id;
         return PhysicsObjects[this.id][this.objects[id]].static;
@@ -41,18 +44,21 @@ class RegisterPhysicsObject {
 class ObjectMetadata {
     constructor(id) {
         this.id = id;
-        this.misc = new Misc(this.id);
+        this.lmisc = new Misc(this.id);
         this.objects = [];
+    };
+    get misc() {
+        return this.lmisc;
     };
     DisablePhysics(id) {
         id=typeof(id)==='string'?id:id.obj||id.id;
         if(!this.objects[id])return;
-        return this.misc.SetPhysicsObjectValueById(id,'disabled',true);
+        return this.lmisc.SetPhysicsObjectValueById(id,'disabled',true);
     };
     EnablePhysics(id) {
         id=typeof(id)==='string'?id:id.obj||id.id;
         if(!this.objects[id])return;
-        return this.misc.SetPhysicsObjectValueById(id,'disabled',false);
+        return this.lmisc.SetPhysicsObjectValueById(id,'disabled',false);
     };
     AddObject(obj) {
         if(typeof(obj)==='string'){
@@ -62,7 +68,7 @@ class ObjectMetadata {
             this.objects[obj.obj]=obj;
             return true;
         };
-        obj=this.misc.GetPhysicsObjectFromId(obj.id||obj.obj);
+        obj=this.lmisc.GetPhysicsObjectFromId(obj.id||obj.obj);
         this.objects[obj.obj]=obj;
         return true;
     };
@@ -148,12 +154,12 @@ class Physics {
                 } else if(obj.collisions.length>0){
                     this.OnDynamicCollisions(null,statics[i]);
                 };
-                if(statics[i].collisions.length>0&&((distances.downdifference<=0&&distances.down)||(distances.topdifference<=0&&distances.top))||distances.overflow){
+                if(statics[i].collisions.length>0&&(((distances.downdifference<=0&&distances.down)||(distances.topdifference<=0&&distances.top))||(distances.overflow||distances.inside))&&!(distances.left||distances.right)){
                     if(statics[i].collisions.length>0){
-                        //this.OnStaticCollisions(statics[i],obj);
+                        this.OnStaticCollisions(statics[i],obj);
                     };
                 } else if(statics[i].collisions.length>0){
-                    //this.OnStaticCollisions(null,obj);
+                    this.OnStaticCollisions(statics[i],obj,null);
                 };
                 if(distances.cdisabled)continue;
                 if(PhysicsObjects[id].gravity>-1) {
@@ -245,18 +251,20 @@ class Physics {
             return;
         };
     };
-    OnStaticCollisions(parent, child) {
-        if(parent===null){
-            if(this.staticobjects[child.obj]){
-                this.staticobjects[child.obj]=undefined;
+    OnStaticCollisions(parent, child, res) {
+        if(!this.staticobjects[parent.obj]){
+            this.staticobjects[parent.obj]={};
+        };
+        if(res===null){
+            if(this.staticobjects[parent.obj][child.obj]){
+                this.staticobjects[parent.obj][child.obj]=undefined;
                 return;
             };
             return;
         };
-        if(!this.staticobjects[child.obj]){
-            this.staticobjects[child.obj]=true;
+        if(!this.staticobjects[parent.obj][child.obj]){
+            this.staticobjects[parent.obj][child.obj]=true;
             for(let i=0;i<parent.collisions.length;i++){
-                console.log(parent.obj)
                 parent.collisions[i](parent,child);
             };
             return;
@@ -303,6 +311,7 @@ class Movement {
             };
         });
         let fobj = false;
+        let instance = {};
         for(let i=0;i<statics.length;i++){
             let distances = PhysicsCheckDirection(PhysicsObjects[this.id][this.i].walls,statics[i].walls);
             if(PhysicsObjects[this.id][this.i].collisions.length>0&&distances.right&&!distances.between&&!(distances.top||distances.down)&&distances.rightdifference<=0){
@@ -315,22 +324,32 @@ class Movement {
                 if(difference){
                     if(!fobj){
                         fobj=distances.rightdifference;
+                        instance=distances;
                     };
                     if(fobj>distances.rightdifference){
                         fobj=distances.rightdifference;
+                        instance=distances;
                     };
                 } else {
                     if(!fobj){
-                        fobj=distances.rightdifference;
+                        fobj=distances.rightdifference-dist;
+                        instance=distances;
                     };
                     if(fobj>distances.rightdifference){
-                        fobj=distances.rightdifference;
+                        fobj=distances.rightdifference-dist;
+                        instance=distances;
                     };
                 };
             };
         };
         if(fobj>dist){
             fobj=dist;
+        };
+        if(instance.rightdifference<fobj){
+            fobj=instance.rightdifference;
+        };
+        if(fobj<0){
+            fobj=0;
         };
         let doc=this.obj;
         doc.style.left=Number(doc.style.left.replace('px',''))-fobj+'px';

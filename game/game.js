@@ -4,7 +4,10 @@ map.CreateObject(20, 300, 300, 1000, false, false);
 map.CreateObject(20, 300, 700, 1000, false, false);
 let plank = map.CreateObject(400, 10, 300, 800, false, false);
 let obj = map.CreateObject(200, 40, 200, 705, false, false, {dynamic:true});
-let doc = document.getElementById(obj.obj)
+let doc = document.getElementById(obj.obj);
+map.CreateTriggerZone(200, 100, 200, 600, false, false, {}, function(){
+    console.log(true);
+});
 map.metadata.FocusOnElement(doc);
 doc.style.backgroundColor = "blue"
 var mov = new Movement(doc);
@@ -47,7 +50,4 @@ misc.PushPhysicsObjectById(plank.obj, 'collisions', function(e,obj){
             skip=false
         }
     }
-});
-misc.PushPhysicsObjectById(obj.obj, 'collisions', function(e,obj){
-    
 });

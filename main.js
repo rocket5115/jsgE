@@ -48,6 +48,9 @@ class Renderer {
     get metadata() {
         return this.lphysics.metadata;
     };
+    get misc() {
+        return this.lphysics.metadata.misc
+    };
     get GetId() {
         return this.id
     };
@@ -88,6 +91,9 @@ class RegisterScene {
     get overlap() {
         return (this.loverlap===true);
     };
+    get misc() {
+        return this.render.physics.metadata.misc
+    };
     get metadata() {
         return this.render.physics.metadata;
     };
@@ -109,6 +115,13 @@ class RegisterScene {
             {x1:obj.x,y1:obj.y,x2:obj.x,y2:obj.y+obj.height}, 
             (metadata||{dynamic:false})
         )
+        return obj;
+    };
+    CreateTriggerZone(width, height, x, y, centerx, centery, metadata, def) {
+        let obj = this.CreateObject(width, height, x, y, centerx, centery, metadata);
+        this.render.physics.metadata.AddObject(obj);
+        this.render.physics.metadata.DisablePhysics(obj.obj);
+        this.render.physics.metadata.misc.PushPhysicsObjectById(obj.obj, 'collisions', def);
         return obj;
     };
     CreateBorders(p1,p2,p3,p4) {
