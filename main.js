@@ -68,6 +68,7 @@ class RegisterScene {
         $("#ScenesContainer").append(`<container id="SceneElement${this.id}" class="Scene" style="position:absolute;width:${x}px;height:${y}px;max-width:${x}px;max-height:${y}px"></container>`);
         this.render = new Renderer(this.id,x,y,this);
         this.deconstruct = new Deconstruct(this.id);
+        this.lobject = new ObjectProperties(this.id);
     };
     DeleteScene() {
         this.deconstruct.DeleteAll();
@@ -81,6 +82,7 @@ class RegisterScene {
         delete(this.id);
         delete(this.render);
         delete(this.deconstruct);
+        delete(this.object);
     };
     get deconstructor() {
         return this.deconstruct;
@@ -100,11 +102,14 @@ class RegisterScene {
     get physics() {
         return this.render.physics;
     };
+    get enemies() {
+        return this.render.enemies;
+    };
     get renderer() {
         return this.render;
     };
-    get enemies() {
-        return this.render.enemies;
+    get object() {
+        return this.lobject;
     };
     CreateObject(width, height, x, y, centerx, centery, metadata) {
         let obj = this.render.CreateObject("obj", width, height, x, y, centerx, centery);
@@ -146,7 +151,7 @@ class RegisterScene {
         p2 = this.CreateObject(objs[1],this.y-objs[1],this.x,0,false,false);
         p3 = this.CreateObject(this.x,objs[2],0,this.y,false,false);
         p4 = this.CreateObject(objs[3],this.y,0,0,false,false);
-        return {p1,p2,p3,p4};
+        return [p1,p2,p3,p4];
     };
 };
 setInterval(() => {
