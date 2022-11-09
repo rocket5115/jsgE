@@ -1,0 +1,83 @@
+:root {
+    --sh: url("../images/slh.png");
+    --sl1: url("../images/srll.png");
+    --sl2: url("../images/slll.png");
+    --slr1: 0deg;
+    --slr2: 0deg;
+    --sll1: 24px;
+    --sll2: 24px;
+}
+
+.SteveHead::before {
+    content: "";
+    position: absolute;
+    top: 0px;
+    left: 16px;
+    width: 32px;
+    height: 32px;
+    background-color: black;
+    background-image: var(--sh);
+    rotate: var(--shr1);
+}
+
+.SteveHead::after {
+    content: "";
+    position: absolute;
+    top: 0px;
+    left: 16px;
+    width: 32px;
+    height: 32px;
+    background-color: black;
+    background-image: var(--sh);
+    rotate: var(--shr1);
+}
+
+.SteveArms::after {
+    content: "";
+    position: absolute;
+    top: 32px;
+    left: 24px;
+    width: 16px;
+    height: 48px;
+    background-color: black;
+    background-image: url("../images/sra.png");
+}
+
+.SteveArms::before {
+    content: "";
+    position: absolute;
+    top: 32px;
+    left: 24px;
+    width: 16px;
+    height: 48px;
+    background-color: black;
+    background-image: url("../images/sla.png");
+}
+
+.SteveLegs::after {
+    content: "";
+    position: absolute;
+    top: 80px;
+    left: var(--sll1);
+    width: 16px;
+    height: 48px;
+    background-color: black;
+    background-image: var(--sl1);
+    rotate: var(--slr1);
+}
+
+.SteveLegs::before {
+    content: "";
+    position: absolute;
+    top: 80px;
+    left: var(--sll2);
+    width: 16px;
+    height: 48px;
+    background-color: black;
+    background-image: var(--sl2);
+    rotate: var(--slr2);
+}
+
+.SteveHead,.SteveArms,.SteveLegs {
+    background-repeat: no-repeat;
+}
