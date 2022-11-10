@@ -147,6 +147,7 @@ class Physics {
         let dynamic = [];
         let i=0;
         obj.forEach(obj=>{
+            if(obj.mcdisable){i++;return;}
             if(obj.static){statics.push(obj);i++;return;};
             obj.i=i;
             if(!obj.static){dynamic.push(obj);i++;return;};
@@ -300,15 +301,15 @@ class Physics {
     };
 };
 
-const PhysicsObject = new Physics('main');
-const PhysicsFunc = () => {
-    PhysicsObjects.forEach((value,id)=>{
-        if(value==undefined)return;
-        PhysicsObject.Next(value,id);
-    });
-    setTimeout(PhysicsFunc,PhysicsObject.GetInterval*10);
-};
-setTimeout(PhysicsFunc, PhysicsObject.GetInterval*10)
+// const PhysicsObject = new Physics('main');
+// const PhysicsFunc = () => {
+//     PhysicsObjects.forEach((value,id)=>{
+//         if(value==undefined)return;
+//         PhysicsObject.Next(value,id);
+//     });
+//     setTimeout(PhysicsFunc,PhysicsObject.GetInterval*10);
+// };
+// setTimeout(PhysicsFunc, PhysicsObject.GetInterval*10)
 
 class Movement {
     constructor(element) {

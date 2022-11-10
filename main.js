@@ -111,6 +111,9 @@ class RegisterScene {
     get object() {
         return this.lobject;
     };
+    get GetId() {
+        return this.id;
+    };
     CreateObject(width, height, x, y, centerx, centery, metadata) {
         let obj = this.render.CreateObject("obj", width, height, x, y, centerx, centery);
         this.render.physics.RegisterPhysicsObject(obj.obj,
