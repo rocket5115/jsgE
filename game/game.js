@@ -110,7 +110,6 @@ document.addEventListener('mousemove', (e)=>{
     let x = (op.left + sh.clientWidth / 2);
     let y = (op.top + sh.clientHeight / 2);
     let rect = angle(e.clientX, e.clientY, x, y)
-    console.log(rect)
     if(last==0){
         if(rect<40&&rect>-20){
             document.documentElement.style.setProperty('--shr1', rect+'deg');
@@ -150,3 +149,9 @@ const func = () =>{
     setTimeout(func,10);
 };
 setTimeout(func,10);
+
+var grid = new CreateGrid(map.size.x, map.size.y, 64, 64);
+document.addEventListener('click', function(e) {
+    let pos = grid.ClickedOnGrid(e.clientX, e.clientY);
+    //map.CreateObject(64, 64, pos.x, pos.y+64)
+});
