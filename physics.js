@@ -22,6 +22,14 @@ class RegisterPhysicsObject {
             StaticObjects[this.id].push(PhysicsObjects[this.id].length-1)
         };
     };
+    DeletePhysicsObject(id) {
+        id=typeof(id)==='string'?id:id.obj||id.id;
+        if(this.objects[id]){
+            PhysicsObjects[this.id][this.objects[id]]={};
+            return true;
+        };
+        return false;
+    };
     get GetId() {
         return this.id;
     };
@@ -98,7 +106,7 @@ class ObjectMetadata {
 setInterval(()=>{
     if(FocusOn[0]!=undefined){
         let elementRect=FocusOn[0].getBoundingClientRect();
-        window.scrollTo((elementRect.left + window.pageXOffset) - (1920/4), (elementRect.top + window.pageYOffset) - (1080 / 2));
+        window.scrollTo((elementRect.left + window.pageXOffset) - (1920/2), (elementRect.top + window.pageYOffset) - (1080 / 2));
     };
 }, 15);
 
@@ -147,6 +155,7 @@ class Physics {
         let dynamic = [];
         let i=0;
         obj.forEach(obj=>{
+            if(!obj)return;
             if(obj.mcdisable){i++;return;}
             if(obj.static){statics.push(obj);i++;return;};
             obj.i=i;
@@ -333,6 +342,7 @@ class Movement {
         if(!PhysicsObjects[this.id])return this.DeleteMovement();
         let statics=[];
         PhysicsObjects[this.id].forEach(obj=>{
+            if(!obj)return;
             if(this.method=='dynamic'){
                 if(obj.static){statics.push(obj);return;};
             } else {
@@ -407,6 +417,7 @@ class Movement {
         if(!PhysicsObjects[this.id])return this.DeleteMovement();
         let statics=[];
         PhysicsObjects[this.id].forEach(obj=>{
+            if(!obj)return;
             if(this.method=='dynamic'){
                 if(obj.static){statics.push(obj);return;};
             } else {

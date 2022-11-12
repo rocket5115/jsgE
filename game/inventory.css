@@ -1,0 +1,83 @@
+.Inventory {
+    display: grid;
+    grid-template-rows: 10px 64px 10px;
+    background-color: rgba(55, 53, 53, 0.741);
+}
+
+.Inventory>* {
+    margin: 0px;
+    background-color: transparent !important;
+}
+
+.Inventory>#InnerInventory>.InventoryItem {
+    background-color: inherit !important;
+}
+
+.Inventory>div>div {
+    background-color: rgb(179, 179, 179);
+}
+
+#InventoryTopPadding {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: flex-start;
+    align-content: center;
+}
+
+#InventoryTopPadding>div {
+    width: 74px;
+    height: 10px;
+}
+
+#InventoryTopPadding>div:first-child {
+    width: 79px;
+}
+
+#InventoryTopPadding>div:last-child {
+    width: 79px;
+}
+
+#InventoryBottomPadding {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: flex-start;
+    align-content: center;
+}
+
+#InventoryBottomPadding>div {
+    width: 74px;
+    height: 10px;
+}
+
+#InventoryBottomPadding>div:first-child {
+    width: 79px;
+    height: 10px;
+}
+
+#InventoryBottomPadding>div:last-child {
+    width: 79px;
+    height: 10px;
+}
+
+#InnerInventory {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: flex-start;
+    align-content: center;
+}
+
+.InventoryItem {
+    width: 64px;
+    height: 64px;
+}
+
+.InventorySpace {
+    width: 10px;
+    height: 64px;
+}

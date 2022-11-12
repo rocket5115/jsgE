@@ -34,6 +34,9 @@ class CreateGrid {
         });
         return retval;
     };
+    GetObjectOnGrid(x,y) {
+        return this.grid[y][x];
+    };
     GetCoordsOnGridFromCoords(x,y) {
         x=Math.floor(x/this.x);
         y=Math.floor(y/this.y);

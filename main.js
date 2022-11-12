@@ -9,7 +9,6 @@ class Renderer {
         this.parentX = Number(this.container.style.width.replace('px', ''));
         this.parentY = Number(this.container.style.height.replace('px', ''));
         this.lphysics = new RegisterPhysicsObject(id);
-        this.lenemies = new EnemiesCreator(this.id,object);
         RenderObjects[id]=[];
         this.CenterElement = (num, ext) => {
             return (num-(ext/2));
@@ -30,7 +29,7 @@ class Renderer {
             if(y<0) y=0;
             if(x<0) x=0;
             let objid = (Math.random()*20).toFixed(10)
-            $('#SceneElement'+this.id).append(`<${type} id="SceneElementObject${objid}" style="background-color:red;position:absolute;width:${width}px;height:${height}px;left:${x}px;top:${y}px"></${type}>`);
+            $('#SceneElement'+this.id).append(`<${type} id="SceneElementObject${objid}" style="position:absolute;width:${width}px;height:${height}px;left:${x}px;top:${y}px"></${type}>`);
             return {width: width, height: height, x:x, y:y, id:"SceneElementObject"+objid}
         };
     };
@@ -53,9 +52,6 @@ class Renderer {
     };
     get GetId() {
         return this.id
-    };
-    get enemies() {
-        return this.lenemies;
     };
 };
 
@@ -101,9 +97,6 @@ class RegisterScene {
     };
     get physics() {
         return this.render.physics;
-    };
-    get enemies() {
-        return this.render.enemies;
     };
     get renderer() {
         return this.render;

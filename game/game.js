@@ -8,21 +8,24 @@ let bc1 = map.CreateObject(size.x, 10, 0, 0);
 let bc2 = map.CreateObject(10, size.y, size.x, 0);
 let bc3 = map.CreateObject(10, size.y, 0, 0);
 let x=0;
-for(let i=0;i<size.x/64;i++){
-    if(grid.IsPositionOnGridFree(i, (size.y/64)-1)) {
-        let obj = map.CreateObject(64,64,i*64,size.y);
-        map.object.SetImage(obj.obj, 'images/grass.png', false);
-        grid.AddObject(i,(size.y/64)-1,map.misc.GetPhysicsObjectFromId(obj.obj));
+let poss = [size.y/64-1,size.y/64-2,size.y/64-3, size.y/64-4,size.y/64-5,size.y/64-6, size.y/64-7,size.y/64-8,size.y/64-9]
+poss.forEach(y=>{
+    for(let i=0;i<size.x/64;i++){
+        if(grid.IsPositionOnGridFree(i, y)) {
+            let obj = map.CreateObject(64,64,i*64,y*64);
+            map.object.SetImage(obj.obj, 'images/grass.png', false);
+            grid.AddObject(i,y,map.misc.GetPhysicsObjectFromId(obj.obj));
+        };
     };
-};
-let steve = map.CreateObject(32, 128, 200, 705, false, false, {dynamic:true});
+});
+let steve = map.CreateObject(32, 128, 200, 105, false, false, {dynamic:true});
 map.object.SetImage(steve.obj, 'images/stevel.png', false);
 let doc = document.getElementById(steve.obj);
 doc.className = 'SteveBase';
 doc.style.backgroundColor='transparent';
-let steveHead = map.CreateObject(64, 128, 200, 705);
-let steveArms = map.CreateObject(64, 128, 200, 705);
-let steveLegs = map.CreateObject(64, 128, 200, 705);
+let steveHead = map.CreateObject(64, 128, 200, 105);
+let steveArms = map.CreateObject(64, 128, 200, 105);
+let steveLegs = map.CreateObject(64, 128, 200, 105);
 let sh = document.getElementById(steveHead.obj);
 let sa = document.getElementById(steveArms.obj);
 let sl = document.getElementById(steveLegs.obj);
@@ -79,7 +82,6 @@ let finished = false;
 
 const MoveLegs = () => {
     let rot = Number(getComputedStyle(document.documentElement).getPropertyValue('--slr1').replace('deg', ''));
-    let left = Number(getComputedStyle(document.documentElement).getPropertyValue('--sll1').replace('px', ''));
     if(rot-5>=Positions[0].min&&!finished){
         document.documentElement.style.setProperty('--slr1', rot-5+'deg');
         document.documentElement.style.setProperty('--slr2', -rot+5+'deg');
@@ -155,22 +157,26 @@ const func = () =>{
 };
 setTimeout(func,10);
 
-document.addEventListener('click', function(e) {
+document.addEventListener('click', e=> {
     let rect = bac.getBoundingClientRect();
     let pos = grid.GetCoordsOnGridFromCoords(e.clientX-rect.left,e.clientY-rect.top);
-    let pos2 = grid.GetCoordsOnGridFromCoords()
-    if(grid.IsPositionOnGridFree(pos.X,pos.Y)&&grid.IsAdjacentToOtherPosition(pos.X,pos.Y)){
-        grid.AddObject(pos.X, pos.Y, map.misc.GetPhysicsObjectFromId(map.CreateObject(64, 64, pos.x, pos.y).obj))
+    if(!grid.IsPositionOnGridFree(pos.X,pos.Y)){
+        let obj = grid.GetObjectOnGrid(pos.X,pos.Y);
+        map.physics.DeletePhysicsObject(obj.obj);
+        grid.OverrideObject(pos.X,pos.Y,false);
+        document.getElementById(obj.obj).remove();
     };
 });
 
 $('body').bind('contextmenu', function(e) {
+    let rect = bac.getBoundingClientRect();
+    let pos = grid.GetCoordsOnGridFromCoords(e.clientX-rect.left,e.clientY-rect.top);
+    let pos2 = grid.GetCoordsOnGridFromCoords(pobj.walls[1].x1, pobj.walls[1].y1);
+    if(!(pos.X===pos2.X&&(pos.Y===pos2.Y-1||pos.Y===pos2.Y-2))&&(grid.IsPositionOnGridFree(pos.X,pos.Y)&&grid.IsAdjacentToOtherPosition(pos.X,pos.Y))){
+        grid.AddObject(pos.X, pos.Y, map.misc.GetPhysicsObjectFromId(map.CreateObject(64, 64, pos.x, pos.y).obj))
+    };
     return false;
 });
-
-let pog = map.CreateObject(64, 64, 64, 64);
-let pg = document.getElementById(pog.obj);
-pg.style.position='fixed';
 
 const PhysicsObject = new Physics('main');
 const PhysicsFunc = () => {
@@ -180,6 +186,7 @@ const PhysicsFunc = () => {
     objs[bc2.obj]=true;
     objs[bc3.obj]=true;
     for(let i=0;i<PhysicsObjects[map.GetId].length;i++){
+        if(!PhysicsObjects[map.GetId][i])continue;
         if(!objs[PhysicsObjects[map.GetId][i].obj]){
             PhysicsObjects[map.GetId][i].mcdisable=true;
         } else {
@@ -196,3 +203,32 @@ const ChunkFunc = () => {
     setTimeout(ChunkFunc, 50);
 };
 setTimeout(ChunkFunc, 50);
+
+var inventory = new InventoryHandler(map);
+inventory.CreatePersonalInventory();
+let lastinv = 0;
+inventory.FocusOnElement(lastinv);
+$(window).bind('mousewheel', function(event) {
+    if (event.originalEvent.wheelDelta >= 0) {
+        if(lastinv<8) {
+            lastinv++;
+        } else {
+            lastinv=0;
+        };
+    } else {
+        if(lastinv>0) {
+            lastinv--;
+        } else {
+            lastinv=8;
+        };
+    };
+    inventory.FocusOnElement(lastinv);
+});
+$(window).bind('keydown', function(event) {
+    let num = Number(event.key);
+    if(num>0&&num<10) {
+        lastinv=num-1;
+        inventory.FocusOnElement(lastinv);
+    };
+});
+console.log(document.getElementById('SceneElement'+map.GetId).childNodes.length)
