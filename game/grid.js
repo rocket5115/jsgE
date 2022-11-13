@@ -52,6 +52,9 @@ class CreateGrid {
         if(this.grid[y-1][x]!=false||this.grid[y+1][x]!=false)return true;
         return false;
     };
+    GetAdjacentPositionsOnGrid(x,y) {
+        return {top:(this.grid[y-1]!=undefined&&this.grid[y-1][x]!=false),down:(this.grid[y+1]!=undefined&&this.grid[y+1][x]!=false),left:(this.grid[y][x-1]!=false),right:(this.grid[y][x+1]!=false)};
+    };
     AddObject(x,y,obj) {
         if(this.grid[y][x])return false;
         this.grid[y][x]=obj;
@@ -67,9 +70,10 @@ class CreateGrid {
     };
     SetChunkReferencePoint(x,y) {
         let xy = this.GetCoordsOnGridFromCoords(x,y);
-        this.chunks.x1=xy.X;
+        this.chunks.x1=xy.X-this.chunk<0?0:xy.X-this.chunk;
         this.chunks.x2=xy.X+this.chunk;
-        this.chunks.y1=xy.Y;
+        this.chunks.y1=xy.Y-this.chunk<0?0:xy.Y-this.chunk;
         this.chunks.y2=xy.Y+this.chunk;
+        return true;
     };
 };

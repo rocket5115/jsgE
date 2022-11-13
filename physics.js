@@ -198,7 +198,7 @@ class Physics {
                         };
                     };
                 } else {
-                    if(distances.down&&distances.between){
+                    if(distances.down&&(distances.between||distances.overflow)){
                         let difference=(distances.downdifference+PhysicsObjects[id].gravity>=0);
                         if(difference){
                             if(!tomove){

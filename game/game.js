@@ -9,15 +9,15 @@ let bc2 = map.CreateObject(10, size.y, size.x, 0);
 let bc3 = map.CreateObject(10, size.y, 0, 0);
 let x=0;
 let poss = [size.y/64-1,size.y/64-2,size.y/64-3, size.y/64-4,size.y/64-5,size.y/64-6, size.y/64-7,size.y/64-8,size.y/64-9]
-poss.forEach(y=>{
+//poss.forEach(y=>{
     for(let i=0;i<size.x/64;i++){
-        if(grid.IsPositionOnGridFree(i, y)) {
-            let obj = map.CreateObject(64,64,i*64,y*64);
+        if(grid.IsPositionOnGridFree(i, ((size.y/64)-1))) {
+            let obj = map.CreateObject(64,64,i*64,((size.y/64)-1)*64);
             map.object.SetImage(obj.obj, 'images/grass.png', false);
-            grid.AddObject(i,y,map.misc.GetPhysicsObjectFromId(obj.obj));
+            grid.AddObject(i,((size.y/64)-1),map.misc.GetPhysicsObjectFromId(obj.obj));
         };
     };
-});
+//});
 let steve = map.CreateObject(32, 128, 200, 105, false, false, {dynamic:true});
 map.object.SetImage(steve.obj, 'images/stevel.png', false);
 let doc = document.getElementById(steve.obj);
@@ -168,13 +168,51 @@ document.addEventListener('click', e=> {
     };
 });
 
+const IsAllowedToPlaceObjectOnGrid = (pos,pos2) => {
+    let onleft = (pos.X<pos2.X);
+    let under = (pos.X==pos2.X);
+    let adjacent = grid.GetAdjacentPositionsOnGrid(pos.X, pos.Y);
+    let playerAdjacent = [grid.GetAdjacentPositionsOnGrid(pos2.X,pos2.Y-1), grid.GetAdjacentPositionsOnGrid(pos2.X,pos2.Y-2)];
+    let player2Adjacent;
+    let player3Adjacent;
+    if(onleft){
+        player2Adjacent = [grid.GetAdjacentPositionsOnGrid(pos2.X-1,pos2.Y-1), grid.GetAdjacentPositionsOnGrid(pos2.X-1,pos2.Y-2)];
+        player3Adjacent = [grid.GetAdjacentPositionsOnGrid(pos2.X-2,pos2.Y-1), grid.GetAdjacentPositionsOnGrid(pos2.X-2,pos2.Y-2)];
+    } else {
+        player2Adjacent = [grid.GetAdjacentPositionsOnGrid(pos2.X+1,pos2.Y-1), grid.GetAdjacentPositionsOnGrid(pos2.X+1,pos2.Y-2)];
+        player3Adjacent = [grid.GetAdjacentPositionsOnGrid(pos2.X+2,pos2.Y-1), grid.GetAdjacentPositionsOnGrid(pos2.X+2,pos2.Y-2)];
+    };
+    let postionArgument = (pos2.X+5>pos.X&&pos2.X-5<pos.X&&pos2.Y+4>pos.Y&&pos2.Y-5<pos.Y&&grid.IsPositionOnGridFree(pos.X,pos.Y)&&grid.IsAdjacentToOtherPosition(pos.X,pos.Y));
+    let headArgument = !(playerAdjacent[1].left&&playerAdjacent[1].right&&!((pos.X==pos2.X+1||pos.X==pos2.X-1)&&pos.Y==pos2.Y-1));
+    let bottomadjacentArgument = (((onleft&&adjacent.left)||(!onleft&&adjacent.right))||(!adjacent.left&&!adjacent.right));
+    let adjacentArgument = !(adjacent.left&&adjacent.right&&adjacent.top&&adjacent.down);
+    let playerArgument = !((onleft&&(playerAdjacent[0].left&&playerAdjacent[1].left))||(!onleft&&(playerAdjacent[0].right&&playerAdjacent[1].right)));
+    let YArgument = !(playerArgument&&((pos.Y<pos2.Y-2)&&!adjacent.right));
+    let PlayerYArgument = (pos.Y>pos2.Y-1);
+    let blockArgument = !((onleft&&(player2Adjacent[0].left&&player2Adjacent[1].left))||(!onleft&&(player2Adjacent[0].right&&player2Adjacent[1].right))||(onleft&&(player3Adjacent[0].left&&player3Adjacent[1].left))||(!onleft&&(player3Adjacent[0].right&&player3Adjacent[1].right)));
+    if(under){
+        if(pos2.Y<pos.Y-1){
+            bottomadjacentArgument=true;
+        };
+    } else {
+        PlayerYArgument=true;
+        bottomadjacentArgument=true;
+    };
+    console.log(postionArgument,headArgument,bottomadjacentArgument,adjacentArgument,playerArgument,YArgument,PlayerYArgument,blockArgument)
+    return (postionArgument&&headArgument&&bottomadjacentArgument&&adjacentArgument&&playerArgument&&YArgument&&PlayerYArgument&&blockArgument);
+};
+
 $('body').bind('contextmenu', function(e) {
     let rect = bac.getBoundingClientRect();
     let pos = grid.GetCoordsOnGridFromCoords(e.clientX-rect.left,e.clientY-rect.top);
     let pos2 = grid.GetCoordsOnGridFromCoords(pobj.walls[1].x1, pobj.walls[1].y1);
-    if(!(pos.X===pos2.X&&(pos.Y===pos2.Y-1||pos.Y===pos2.Y-2))&&(grid.IsPositionOnGridFree(pos.X,pos.Y)&&grid.IsAdjacentToOtherPosition(pos.X,pos.Y))){
-        grid.AddObject(pos.X, pos.Y, map.misc.GetPhysicsObjectFromId(map.CreateObject(64, 64, pos.x, pos.y).obj))
+    if(IsAllowedToPlaceObjectOnGrid(pos, pos2)){
+        grid.AddObject(pos.X, pos.Y, map.misc.GetPhysicsObjectFromId(map.CreateObject(64, 64, pos.x, pos.y).obj));
     };
+    /*if(!(pos.X===pos2.X&&(pos.Y===pos2.Y-1||pos.Y===pos2.Y-2))&&(grid.IsPositionOnGridFree(pos.X,pos.Y)&&grid.IsAdjacentToOtherPosition(pos.X,pos.Y))){
+        if((pos2.X+5>pos.X&&pos2.X-5<pos.X)&&(pos2.Y+4>pos.Y&&pos2.Y-5<pos.Y)){
+        };
+    };*/
     return false;
 });
 
@@ -231,4 +269,3 @@ $(window).bind('keydown', function(event) {
         inventory.FocusOnElement(lastinv);
     };
 });
-console.log(document.getElementById('SceneElement'+map.GetId).childNodes.length)
