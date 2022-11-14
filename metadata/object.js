@@ -9,4 +9,9 @@ class ObjectProperties {
         doc.style.backgroundSize = `${doc.style.width} ${doc.style.height}`;
         return true;
     };
+    GetImageName(id) {
+        let doc = this.misc.GetDOMObjectFromId(id);
+        let ret = doc.style.backgroundImage;
+        return ret.replace('.png")', '').replace('url("images/', '');
+    };
 };

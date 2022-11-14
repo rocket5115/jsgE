@@ -13,7 +13,7 @@ let poss = [size.y/64-1,size.y/64-2,size.y/64-3, size.y/64-4,size.y/64-5,size.y/
     for(let i=0;i<size.x/64;i++){
         if(grid.IsPositionOnGridFree(i, ((size.y/64)-1))) {
             let obj = map.CreateObject(64,64,i*64,((size.y/64)-1)*64);
-            map.object.SetImage(obj.obj, 'images/grass.png', false);
+            map.object.SetImage(obj.obj, 'images/bedrock.png', false);
             grid.AddObject(i,((size.y/64)-1),map.misc.GetPhysicsObjectFromId(obj.obj));
         };
     };
@@ -157,17 +157,6 @@ const func = () =>{
 };
 setTimeout(func,10);
 
-document.addEventListener('click', e=> {
-    let rect = bac.getBoundingClientRect();
-    let pos = grid.GetCoordsOnGridFromCoords(e.clientX-rect.left,e.clientY-rect.top);
-    if(!grid.IsPositionOnGridFree(pos.X,pos.Y)){
-        let obj = grid.GetObjectOnGrid(pos.X,pos.Y);
-        map.physics.DeletePhysicsObject(obj.obj);
-        grid.OverrideObject(pos.X,pos.Y,false);
-        document.getElementById(obj.obj).remove();
-    };
-});
-
 const IsAllowedToPlaceObjectOnGrid = (pos,pos2) => {
     let onleft = (pos.X<pos2.X);
     let under = (pos.X==pos2.X);
@@ -198,23 +187,8 @@ const IsAllowedToPlaceObjectOnGrid = (pos,pos2) => {
         PlayerYArgument=true;
         bottomadjacentArgument=true;
     };
-    console.log(postionArgument,headArgument,bottomadjacentArgument,adjacentArgument,playerArgument,YArgument,PlayerYArgument,blockArgument)
     return (postionArgument&&headArgument&&bottomadjacentArgument&&adjacentArgument&&playerArgument&&YArgument&&PlayerYArgument&&blockArgument);
 };
-
-$('body').bind('contextmenu', function(e) {
-    let rect = bac.getBoundingClientRect();
-    let pos = grid.GetCoordsOnGridFromCoords(e.clientX-rect.left,e.clientY-rect.top);
-    let pos2 = grid.GetCoordsOnGridFromCoords(pobj.walls[1].x1, pobj.walls[1].y1);
-    if(IsAllowedToPlaceObjectOnGrid(pos, pos2)){
-        grid.AddObject(pos.X, pos.Y, map.misc.GetPhysicsObjectFromId(map.CreateObject(64, 64, pos.x, pos.y).obj));
-    };
-    /*if(!(pos.X===pos2.X&&(pos.Y===pos2.Y-1||pos.Y===pos2.Y-2))&&(grid.IsPositionOnGridFree(pos.X,pos.Y)&&grid.IsAdjacentToOtherPosition(pos.X,pos.Y))){
-        if((pos2.X+5>pos.X&&pos2.X-5<pos.X)&&(pos2.Y+4>pos.Y&&pos2.Y-5<pos.Y)){
-        };
-    };*/
-    return false;
-});
 
 const PhysicsObject = new Physics('main');
 const PhysicsFunc = () => {
@@ -267,5 +241,56 @@ $(window).bind('keydown', function(event) {
     if(num>0&&num<10) {
         lastinv=num-1;
         inventory.FocusOnElement(lastinv);
+    };
+});
+
+inventory.SetItemOnSlot(0, {item:'grass',count:1,type:'block',block:true})
+inventory.SetItemOnSlot(0, {item:'bedrock',count:1,type:'block',block:true})
+
+$('body').bind('contextmenu', function(e) {
+    let rect = bac.getBoundingClientRect();
+    let pos = grid.GetCoordsOnGridFromCoords(e.clientX-rect.left,e.clientY-rect.top);
+    let pos2 = grid.GetCoordsOnGridFromCoords(pobj.walls[1].x1, pobj.walls[1].y1);
+    if(IsAllowedToPlaceObjectOnGrid(pos, pos2)){
+        let item = inventory.GetItemOnSlot(lastinv);
+        if(item.block&&item.count>0){
+            let obj = map.CreateObject(64, 64, pos.x, pos.y);
+            grid.AddObject(pos.X, pos.Y, map.misc.GetPhysicsObjectFromId(obj.obj));
+            map.object.SetImage(obj.obj, 'images/'+item.item+'.png');
+            item.count--;
+            if(item.count>0){
+                inventory.SetItemOnSlot(lastinv, item);
+            } else {
+                inventory.RemoveItemFromSlot(lastinv);
+            };
+        };
+    };
+    return false;
+});
+
+const Indestructible = {bedrock:true};
+
+document.addEventListener('click', e=> {
+    let rect = bac.getBoundingClientRect();
+    let pos = grid.GetCoordsOnGridFromCoords(e.clientX-rect.left,e.clientY-rect.top);
+    if(!grid.IsPositionOnGridFree(pos.X,pos.Y)){
+        let obj = grid.GetObjectOnGrid(pos.X,pos.Y);
+        let img = map.object.GetImageName(obj.obj);
+        if(Indestructible[img])return;
+        map.physics.DeletePhysicsObject(obj.obj);
+        grid.OverrideObject(pos.X,pos.Y,false);
+        if(img=='grass')img='dirt';
+        let item = inventory.SearchForItem(img);
+        if(item){
+            item=inventory.GetItemOnSlot(item.slot);
+            item.count++;
+            inventory.SetItemOnSlot(item.slot, item);
+        } else {
+            let slot = inventory.FirstFreeSlot;
+            if(slot!=-1){
+                inventory.SetItemOnSlot(slot, {item:img,count:1,block:true});
+            };
+        };
+        document.getElementById(obj.obj).remove();
     };
 });
