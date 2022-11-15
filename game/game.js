@@ -1,31 +1,33 @@
 var map = new RegisterScene(Math.floor((1920*2)/64)*64, Math.floor((1080/64))*64, false);
 var grid = new CreateGrid(map.size.x, map.size.y, 64, 64, map.GetId);
+var generator = new WorldGenerator(map,grid);
+//generator.CreateBottomLayer();
 let background = map.CreateObject(map.size.x, map.size.y, 0, 0);
 map.object.SetImage(background.obj, 'images/sky.png', false);
 let bac = document.getElementById(background.obj);
 let size = map.size;
+//let poss = [size.y/64-1,size.y/64-2,size.y/64-3, size.y/64-4,size.y/64-5,size.y/64-6, size.y/64-7,size.y/64-8,size.y/64-9]
+//poss.forEach(y=>{
+    // for(let i=0;i<size.x/64;i++){
+    //     if(grid.IsPositionOnGridFree(i, ((size.y/64)-1))) {
+    //         let obj = map.CreateObject(64,64,i*64,((size.y/64)-1)*64);
+    //         map.object.SetImage(obj.obj, 'images/bedrock.png', false);
+    //         grid.AddObject(i,((size.y/64)-1),map.misc.GetPhysicsObjectFromId(obj.obj));
+    //     };
+    // };
+//});
+generator.CreateBottomLayer();
 let bc1 = map.CreateObject(size.x, 10, 0, 0);
 let bc2 = map.CreateObject(10, size.y, size.x, 0);
 let bc3 = map.CreateObject(10, size.y, 0, 0);
-let x=0;
-let poss = [size.y/64-1,size.y/64-2,size.y/64-3, size.y/64-4,size.y/64-5,size.y/64-6, size.y/64-7,size.y/64-8,size.y/64-9]
-//poss.forEach(y=>{
-    for(let i=0;i<size.x/64;i++){
-        if(grid.IsPositionOnGridFree(i, ((size.y/64)-1))) {
-            let obj = map.CreateObject(64,64,i*64,((size.y/64)-1)*64);
-            map.object.SetImage(obj.obj, 'images/bedrock.png', false);
-            grid.AddObject(i,((size.y/64)-1),map.misc.GetPhysicsObjectFromId(obj.obj));
-        };
-    };
-//});
-let steve = map.CreateObject(32, 128, 200, 105, false, false, {dynamic:true});
+let steve = map.CreateObject(32, 128, 200, 505, false, false, {dynamic:true});
 map.object.SetImage(steve.obj, 'images/stevel.png', false);
 let doc = document.getElementById(steve.obj);
 doc.className = 'SteveBase';
 doc.style.backgroundColor='transparent';
-let steveHead = map.CreateObject(64, 128, 200, 105);
-let steveArms = map.CreateObject(64, 128, 200, 105);
-let steveLegs = map.CreateObject(64, 128, 200, 105);
+let steveHead = map.CreateObject(64, 128, 200, 505);
+let steveArms = map.CreateObject(64, 128, 200, 505);
+let steveLegs = map.CreateObject(64, 128, 200, 505);
 let sh = document.getElementById(steveHead.obj);
 let sa = document.getElementById(steveArms.obj);
 let sl = document.getElementById(steveLegs.obj);
