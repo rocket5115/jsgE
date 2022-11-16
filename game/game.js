@@ -1,22 +1,13 @@
 var map = new RegisterScene(Math.floor((1920*2)/64)*64, Math.floor((1080/64))*64, false);
 var grid = new CreateGrid(map.size.x, map.size.y, 64, 64, map.GetId);
 var generator = new WorldGenerator(map,grid);
-//generator.CreateBottomLayer();
 let background = map.CreateObject(map.size.x, map.size.y, 0, 0);
 map.object.SetImage(background.obj, 'images/sky.png', false);
 let bac = document.getElementById(background.obj);
 let size = map.size;
-//let poss = [size.y/64-1,size.y/64-2,size.y/64-3, size.y/64-4,size.y/64-5,size.y/64-6, size.y/64-7,size.y/64-8,size.y/64-9]
-//poss.forEach(y=>{
-    // for(let i=0;i<size.x/64;i++){
-    //     if(grid.IsPositionOnGridFree(i, ((size.y/64)-1))) {
-    //         let obj = map.CreateObject(64,64,i*64,((size.y/64)-1)*64);
-    //         map.object.SetImage(obj.obj, 'images/bedrock.png', false);
-    //         grid.AddObject(i,((size.y/64)-1),map.misc.GetPhysicsObjectFromId(obj.obj));
-    //     };
-    // };
-//});
-generator.CreateBottomLayer();
+generator.CreateBottomLayer({
+    chance: [100, 50, 20]
+});
 let bc1 = map.CreateObject(size.x, 10, 0, 0);
 let bc2 = map.CreateObject(10, size.y, size.x, 0);
 let bc3 = map.CreateObject(10, size.y, 0, 0);
@@ -159,7 +150,7 @@ const func = () =>{
 };
 setTimeout(func,10);
 
-const IsAllowedToPlaceObjectOnGrid = (pos,pos2) => {
+/*const IsAllowedToPlaceObjectOnGrid = (pos,pos2) => {
     let onleft = (pos.X<pos2.X);
     let under = (pos.X==pos2.X);
     let adjacent = grid.GetAdjacentPositionsOnGrid(pos.X, pos.Y);
@@ -179,17 +170,58 @@ const IsAllowedToPlaceObjectOnGrid = (pos,pos2) => {
     let adjacentArgument = !(adjacent.left&&adjacent.right&&adjacent.top&&adjacent.down);
     let playerArgument = !((onleft&&(playerAdjacent[0].left&&playerAdjacent[1].left))||(!onleft&&(playerAdjacent[0].right&&playerAdjacent[1].right)));
     let YArgument = !(playerArgument&&((pos.Y<pos2.Y-2)&&!adjacent.right));
-    let PlayerYArgument = (pos.Y>pos2.Y-1);
     let blockArgument = !((onleft&&(player2Adjacent[0].left&&player2Adjacent[1].left))||(!onleft&&(player2Adjacent[0].right&&player2Adjacent[1].right))||(onleft&&(player3Adjacent[0].left&&player3Adjacent[1].left))||(!onleft&&(player3Adjacent[0].right&&player3Adjacent[1].right)));
+    let YArgumentTop = (pos.X==pos2.X&&!playerAdjacent[1].top);
     if(under){
         if(pos2.Y<pos.Y-1){
             bottomadjacentArgument=true;
         };
+        playerArgument=true;
     } else {
-        PlayerYArgument=true;
         bottomadjacentArgument=true;
+        YArgumentTop=true;
     };
-    return (postionArgument&&headArgument&&bottomadjacentArgument&&adjacentArgument&&playerArgument&&YArgument&&PlayerYArgument&&blockArgument);
+    console.log(postionArgument,headArgument,bottomadjacentArgument,adjacentArgument,playerArgument,YArgument,blockArgument,YArgumentTop)
+    return (postionArgument&&headArgument&&bottomadjacentArgument&&adjacentArgument&&playerArgument&&YArgument&&blockArgument&&YArgumentTop);
+};*/
+
+const IsAllowedToPlaceObjectOnGrid = (pos,pos2) => {
+    if(pos.X==pos2.X&&pos.Y==pos2.Y-1||pos.Y==pos2.Y-2)return false;
+    let adjacent = grid.GetAdjacentPositionsOnGrid(pos.X, pos.Y);
+    if(adjacent.left&&adjacent.right&&adjacent.top&&adjacent.down)return false;
+    if(!grid.IsPositionOnGridFree(pos.X,pos.Y))return false;
+    let under = (pos.X==pos2.X);
+    let playerAdjacent = [grid.GetAdjacentPositionsOnGrid(pos2.X,pos2.Y-1), grid.GetAdjacentPositionsOnGrid(pos2.X,pos2.Y-2)];
+    if(under) {
+        let bottom = (pos.Y>pos2.Y-1);
+        if(playerAdjacent[1].top&&playerAdjacent[1].left&&playerAdjacent[1].right&&!bottom)return false;
+        if(playerAdjacent[0].down&&playerAdjacent[0].left&&playerAdjacent[0].right&&bottom)return false;
+        if(bottom&&playerAdjacent[0].down)return false;
+        if(!bottom&&playerAdjacent[1].top)return false;
+        return true;
+    } else {
+        let bottom = (pos.Y>pos2.Y-1);
+        let bottomDist = (bottom&&pos.Y-(pos2.Y-1)||(pos2.Y-1)-pos.Y);
+        let onleft = (pos.X<pos2.X);
+        let onright = !onleft;
+        let dist = (onleft&&pos2.X-pos.X||pos.X-pos2.X);
+        console.log(onleft,bottom,dist,bottomDist);
+        if(onleft){
+            //dist sector
+            if(bottom) {
+                if(dist==1){
+                    if(bottomDist>1)return false;
+                    if(bottomDist==1&&playerAdjacent[0].left)return false;
+                    return true;
+                } else if(dist==2){
+                    if(bottomDist>1)return false;
+                    if(bottomDist==1&&playerAdjacent[0].left)return false;
+                    return true;
+                };
+            };
+        };
+    };
+    return true
 };
 
 const PhysicsObject = new Physics('main');
@@ -246,8 +278,7 @@ $(window).bind('keydown', function(event) {
     };
 });
 
-inventory.SetItemOnSlot(0, {item:'grass',count:1,type:'block',block:true})
-inventory.SetItemOnSlot(0, {item:'bedrock',count:1,type:'block',block:true})
+inventory.SetItemOnSlot(0, {item:'stone',count:10,type:'block',block:true})
 
 $('body').bind('contextmenu', function(e) {
     let rect = bac.getBoundingClientRect();
