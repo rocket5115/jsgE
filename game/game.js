@@ -212,11 +212,15 @@ const IsAllowedToPlaceObjectOnGrid = (pos,pos2) => {
                 if(dist==1){
                     if(bottomDist>1)return false;
                     if(bottomDist==1&&playerAdjacent[0].left)return false;
+                    if(!adjacent.left&&!adjacent.down)return false;
                     return true;
                 } else if(dist==2){
-                    if(bottomDist>1)return false;
                     if(bottomDist==1&&playerAdjacent[0].left)return false;
+                    if(bottomDist==2&&adjacent.left&&!adjacent.right)return false;
+                    if(bottomDist>2)return false;
                     return true;
+                } else if(dist>2) {
+                    return false;
                 };
             };
         };
